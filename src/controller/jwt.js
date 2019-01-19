@@ -5,7 +5,7 @@ module.exports = {
   /**
    * Create a signed JWT
    * @param {object} payload
-   * @returns {string}
+   * @return {string}
    */
   create(payload) {
     return jwt.sign(payload, config.jwt.secret);

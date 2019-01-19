@@ -25,7 +25,7 @@ module.exports = {
         },
         headers: {
           'x-api-key': API_KEY,
-        }
+        },
       });
 
       logger.info({
