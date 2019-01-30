@@ -25,6 +25,7 @@ router.post('/', async function(req, res, next) {
     );
 
     res.status(201).json({
+      id: createdUser.id,
       username: createdUser.username,
       firstname: createdUser.firstname,
       lastname: createdUser.lastname,
