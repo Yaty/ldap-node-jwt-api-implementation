@@ -1,78 +1,58 @@
 workflow "Test and deploy to heroku" {
   on = "push"
+  resolves = ["Test", "Deploy to heroku"]
 }
 
-action "Build" {
-  uses = "actions/npm@master"
+action "Install" {
+  uses = "actions/npm@3c8332795d5443adc712d30fa147db61fd520b5a"
   args = "install"
 }
 
 action "Lint" {
-  needs = "Build"
-  uses = "actions/npm@master"
+  uses = "actions/npm@3c8332795d5443adc712d30fa147db61fd520b5a"
+  needs = ["Install"]
   args = "run lint"
 }
 
 action "Test" {
-  needs = "Build"
-  uses = "actions/npm@master"
+  uses = "actions/npm@3c8332795d5443adc712d30fa147db61fd520b5a"
+  needs = ["Install"]
   args = "test"
 }
 
-action "git.master" {
-  uses = "actions/bin/filter@master"
-  needs = ["Build", "Lint", "Test"]
+action "On master" {
+  uses = "actions/bin/filter@c6471707d308175c57dfe91963406ef205837dbd"
+  needs = ["Lint", "Test"]
   args = "branch master"
 }
 
-action "heroku.login" {
-  uses = "actions/heroku@master"
-  needs = ["git.master"]
+action "Login to Heroku" {
+  uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
+  needs = ["On master"]
   args = "container:login"
   secrets = ["HEROKU_API_KEY"]
 }
 
-action "heroku.push" {
-  uses = "actions/heroku@master"
-  needs = "heroku.login"
-  args = ["container:push", "web"]
-  secrets = [
-    "HEROKU_API_KEY",
-    "HEROKU_APP",
-  ]
-  env = {
-    RACK_ENV = "production"
-  }
-}
-
-action "heroku.envs" {
-  uses = "actions/heroku@master"
-  needs = "heroku.push"
-  args = [
-    "config:set",
-    "RACK_ENV=$RACK_ENV",
-    "MY_SECRET=$MY_SECRET",
-  ]
-  secrets = [
-    "HEROKU_API_KEY",
-    "HEROKU_APP",
-    "MY_SECRET",
-  ]
+action "Push to heroku" {
+  uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
+  needs = ["Login to Heroku"]
+  args = "[\"container:push\",\"web\"]"
+  secrets = ["HEROKU_APP", "HEROKU_API_KEY"]
   env = {
     NODE_ENV = "production"
   }
 }
 
-action "heroku.deploy" {
-  uses = "actions/heroku@master"
-  needs = ["heroku.envs", "heroku.push"]
-  args = ["container:release", "web"]
-  secrets = [
-    "HEROKU_API_KEY",
-    "HEROKU_APP",
-    "MY_SECRET",
-  ]
-  env = {
-    NODE_ENV = "production"
-  }
+action "Add env variables to Heroku" {
+  uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
+  needs = ["Push to heroku"]
+  args = "[\"config:set\",\"NODE_ENV=production\"]"
+  secrets = ["HEROKU_APP", "HEROKU_API_KEY"]
+}
+
+action "Deploy to heroku" {
+  uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
+  needs = ["Add env variables to Heroku"]
+  args = "[\"container:release\",\"web\"]"
+  secrets = ["HEROKU_APP", "HEROKU_API_KEY"]
 }
