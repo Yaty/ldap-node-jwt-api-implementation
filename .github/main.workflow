@@ -8,7 +8,7 @@ action "Build" {
 }
 
 action "Lint" {
-  needs = "Lint"
+  needs = "Build"
   uses = "actions/npm@master"
   args = "run lint"
 }
@@ -21,7 +21,7 @@ action "Test" {
 
 action "git.master" {
   uses = "actions/bin/filter@master"
-  needs = ["node.build", "node.test"]
+  needs = ["Build", "Lint", "Test"]
   args = "branch master"
 }
 
