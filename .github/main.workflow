@@ -3,39 +3,45 @@ workflow "Test and deploy to heroku" {
   resolves = ["Test", "Deploy to heroku"]
 }
 
+action "Build" {
+  uses = "actions/docker/cli@master"
+  args = "build -f Dockerfile -t ci-$GITHUB_SHA:latest ."
+}
+
 action "Install" {
-  uses = "actions/npm@3c8332795d5443adc712d30fa147db61fd520b5a"
-  args = "install"
+  uses = "actions/docker/cli@master"
+  needs = ["Build"]
+  args = "run ci-$GITHUB_SHA:latest npm install"
 }
 
 action "Lint" {
-  uses = "actions/npm@3c8332795d5443adc712d30fa147db61fd520b5a"
+  uses = "actions/docker/cli@master"
   needs = ["Install"]
-  args = "run lint"
+  args = "run ci-$GITHUB_SHA:latest npm run lint"
 }
 
 action "Test" {
-  uses = "actions/npm@3c8332795d5443adc712d30fa147db61fd520b5a"
+  uses = "actions/docker/cli@master"
   needs = ["Install"]
-  args = "test"
+  args = "run ci-$GITHUB_SHA:latest npm test"
   secrets = ["LDAP_PASSWORD", "JWT_SECRET", "JUMPCLOUD_API_KEY", "LDAP_USERNAME", "LDAP_ORG_ID"]
 }
 
 action "On master" {
-  uses = "actions/bin/filter@c6471707d308175c57dfe91963406ef205837dbd"
+  uses = "actions/bin/filter@master"
   needs = ["Lint", "Test"]
   args = "branch master"
 }
 
 action "Login to Heroku" {
-  uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
+  uses = "actions/heroku@master"
   needs = ["On master"]
-  args = ["container:login"]
+  args = "container:login"
   secrets = ["HEROKU_API_KEY"]
 }
 
 action "Push to heroku" {
-  uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
+  uses = "actions/heroku@master"
   needs = ["Login to Heroku"]
   args = ["container:push", "web"]
   secrets = ["HEROKU_APP", "HEROKU_API_KEY"]
@@ -45,7 +51,7 @@ action "Push to heroku" {
 }
 
 action "Add env variables to Heroku" {
-  uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
+  uses = "actions/heroku@master"
   needs = ["Push to heroku"]
   args = ["config:set", "NODE_ENV=production"]
   secrets = [
@@ -60,7 +66,7 @@ action "Add env variables to Heroku" {
 }
 
 action "Deploy to heroku" {
-  uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
+  uses = "actions/heroku@master"
   needs = ["Add env variables to Heroku"]
   args = ["container:release", "web"]
   secrets = ["HEROKU_APP", "HEROKU_API_KEY"]
