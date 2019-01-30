@@ -62,6 +62,6 @@ action "Add env variables to Heroku" {
 action "Deploy to heroku" {
   uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
   needs = ["Add env variables to Heroku"]
-  args = "[\"container:release\"]"
+  args = "container:release"
   secrets = ["HEROKU_APP", "HEROKU_API_KEY"]
 }
