@@ -30,14 +30,14 @@ action "On master" {
 action "Login to Heroku" {
   uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
   needs = ["On master"]
-  args = "container:login"
+  args = ["container:login"]
   secrets = ["HEROKU_API_KEY"]
 }
 
 action "Push to heroku" {
   uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
   needs = ["Login to Heroku"]
-  args = "[\"container:push\",\"web\"]"
+  args = ["container:push", "web"]
   secrets = ["HEROKU_APP", "HEROKU_API_KEY"]
   env = {
     NODE_ENV = "production"
@@ -47,7 +47,7 @@ action "Push to heroku" {
 action "Add env variables to Heroku" {
   uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
   needs = ["Push to heroku"]
-  args = "[\"config:set\",\"NODE_ENV=production\"]"
+  args = ["config:set", "NODE_ENV=production"]
   secrets = [
     "HEROKU_APP",
     "HEROKU_API_KEY",
@@ -62,6 +62,6 @@ action "Add env variables to Heroku" {
 action "Deploy to heroku" {
   uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
   needs = ["Add env variables to Heroku"]
-  args = "container:release web"
+  args = [“container:release”, “web”]
   secrets = ["HEROKU_APP", "HEROKU_API_KEY"]
 }
