@@ -8,21 +8,15 @@ action "Build" {
   args = "build -f Dockerfile -t ci-$GITHUB_SHA:latest ."
 }
 
-action "Install" {
-  uses = "actions/docker/cli@master"
-  needs = ["Build"]
-  args = "run ci-$GITHUB_SHA:latest npm install"
-}
-
 action "Lint" {
   uses = "actions/docker/cli@master"
-  needs = ["Install"]
+  needs = ["Build"]
   args = "run ci-$GITHUB_SHA:latest npm run lint"
 }
 
 action "Test" {
   uses = "actions/docker/cli@master"
-  needs = ["Install"]
+  needs = ["Build"]
   args = "run ci-$GITHUB_SHA:latest npm test"
   secrets = ["LDAP_PASSWORD", "JWT_SECRET", "JUMPCLOUD_API_KEY", "LDAP_USERNAME", "LDAP_ORG_ID"]
 }
