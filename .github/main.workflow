@@ -48,12 +48,20 @@ action "Add env variables to Heroku" {
   uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
   needs = ["Push to heroku"]
   args = "[\"config:set\",\"NODE_ENV=production\"]"
-  secrets = ["HEROKU_APP", "HEROKU_API_KEY"]
+  secrets = [
+    "HEROKU_APP",
+    "HEROKU_API_KEY",
+    "JUMPCLOUD_API_KEY",
+    "JWT_SECRET",
+    "LDAP_ORG_ID",
+    "LDAP_USERNAME",
+    "LDAP_PASSWORD",
+  ]
 }
 
 action "Deploy to heroku" {
   uses = "actions/heroku@6db8f1c22ddf6967566b26d07227c10e8e93844b"
   needs = ["Add env variables to Heroku"]
-  args = "[\"container:release\",\"web\"]"
+  args = "[\"container:release\"]"
   secrets = ["HEROKU_APP", "HEROKU_API_KEY"]
 }
