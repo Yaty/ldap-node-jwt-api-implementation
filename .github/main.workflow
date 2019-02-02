@@ -6,6 +6,7 @@ workflow "Test and deploy to heroku" {
 action "Build" {
   uses = "actions/docker/cli@master"
   args = "build -f Dockerfile -t ci-$GITHUB_SHA:latest ."
+  secrets = ["JUMPCLOUD_API_KEY", "JWT_SECRET", "LDAP_ORG_ID", "LDAP_PASSWORD", "LDAP_USERNAME"]
 }
 
 action "Lint" {
@@ -18,7 +19,6 @@ action "Test" {
   uses = "actions/docker/cli@master"
   needs = ["Build"]
   args = "run ci-$GITHUB_SHA:latest npm test"
-  secrets = ["LDAP_PASSWORD", "JWT_SECRET", "JUMPCLOUD_API_KEY", "LDAP_USERNAME", "LDAP_ORG_ID"]
 }
 
 action "On master" {
