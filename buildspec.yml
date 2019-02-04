@@ -13,7 +13,6 @@ phases:
     commands:
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - npm ci
-      - $(aws ecr get-login --region $AWS_DEFAULT_REGION)
   build:
     commands:
       - echo Running tests
