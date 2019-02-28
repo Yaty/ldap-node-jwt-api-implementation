@@ -1,6 +1,9 @@
 workflow "Test and deploy to heroku" {
   on = "push"
-  resolves = ["Test", "Deploy to heroku"]
+  resolves = [
+    "Test",
+    "Release Notifier",
+  ]
 }
 
 action "Build" {
@@ -64,4 +67,10 @@ action "Deploy to heroku" {
   needs = ["Add env variables to Heroku"]
   args = ["container:release", "web"]
   secrets = ["HEROKU_APP", "HEROKU_API_KEY"]
+}
+
+action "Release Notifier" {
+  uses = "bitoiu/release-notify-action@v1.0"
+  needs = ["Deploy to heroku"]
+  secrets = ["SENDGRID_API_TOKEN", "RECIPIENTS"]
 }
