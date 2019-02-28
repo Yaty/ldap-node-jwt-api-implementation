@@ -15,7 +15,7 @@ app.use(morgan('tiny', {
 }));
 
 app.use(cors());
-app.use(express.static('./public'));
+app.use(express.static('./public/dist'));
 app.use(bodyparser.json());
 app.use('/api', require('./routes'));
 
