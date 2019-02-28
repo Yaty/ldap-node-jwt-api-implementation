@@ -1,5 +1,6 @@
 const express = require('express');
 const user = require('../controller/user');
+const jwt = require('../controller/jwt');
 const router = new express.Router();
 
 router.post('/login', async function(req, res, next) {
@@ -13,6 +14,28 @@ router.post('/login', async function(req, res, next) {
   } catch (err) {
     next(err);
   }
+});
+
+router.get('/news', function(req, res) {
+  const token = req.query.access_token;
+  const user = jwt.verify(token);
+  const data = [{
+    name: 'News pour le MainGroup!',
+  }];
+
+  if (user.groups.includes('Groupe 1')) {
+    data.push({
+      name: 'News pour le groupe 1!',
+    });
+  }
+
+  if (user.groups.includes('Groupe 2')) {
+    data.push({
+      name: 'News pour le groupe 2!',
+    });
+  }
+
+  res.json(data);
 });
 
 router.post('/', async function(req, res, next) {

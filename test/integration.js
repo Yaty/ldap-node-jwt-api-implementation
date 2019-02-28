@@ -54,11 +54,11 @@ describe('User integration tests', function() {
         const payload = jwt.decode(res.body.jwt);
 
         expect(payload.username).to.equal('user1');
-        expect(payload.mail).to.equal('user1@hdaroit.fr');
-        expect(payload.fullname).to.equal('user1 user1');
+        expect(payload.mail).to.equal('contact@hdaroit.fr');
+        expect(payload.fullname).to.equal('user1');
         expect(payload.iat).to.be.a('number');
         expect(payload.groups).to.deep.equal([
-          'Groupe 1',
+          'MainGroup',
         ]);
 
         done();
